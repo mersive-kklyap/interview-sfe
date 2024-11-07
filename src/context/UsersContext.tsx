@@ -18,10 +18,6 @@ interface User {
 
 interface UserContextType {
   users: User[];
-  filteredUsers: User[];
-  filterUsers: (company: string) => void;
-  sortUsersByName: (asc?: boolean) => void;
-  resetUsers: () => void;
   error: string | null;
 }
 
@@ -37,7 +33,6 @@ export const useUsers = (): UserContextType => {
 
 export const UsersProvider = ({ children }: { children: ReactNode }) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -46,7 +41,6 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
         const data = await fetch("https://jsonplaceholder.typicode.com/users");
         const fetchedUsers = await data.json();
         setUsers(fetchedUsers);
-        setFilteredUsers(fetchedUsers);
       } catch (error: any) {
         setError(error.message);
       }
@@ -54,30 +48,11 @@ export const UsersProvider = ({ children }: { children: ReactNode }) => {
     fetchItems();
   }, []);
 
-  const filterUsers = (company: string) => {
-    const filtered = users.filter((user) => user.company.name === company);
-    setFilteredUsers(filtered);
-  };
-
-  const sortUsersByName = (asc = true) => {
-    const sorted = [...filteredUsers].sort((a, b) =>
-      asc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name)
-    );
-    setFilteredUsers(sorted);
-  };
-
-  const resetUsers = () => {
-    setFilteredUsers(users);
-  };
 
   return (
     <UserContext.Provider
       value={{
         users,
-        filteredUsers,
-        filterUsers,
-        sortUsersByName,
-        resetUsers,
         error,
       }}
     >
